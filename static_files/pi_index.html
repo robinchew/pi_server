@@ -12,15 +12,33 @@
         <button id="garage" />Garage</button>
         <button id="gate" />Gate</button>
         <script>
-            function click(path) {
-                fetch(path);
+            function initClickTimeout() {
+                let timeout = null;
+                return (element, { onClick, onTimeout }) => {
+                    element.onclick = () => {
+                        if (timeout === null) {
+                            onClick();
+                            timeout = setTimeout(() => {
+                                onTimeout();
+                                timeout = null;
+                            }, 1000);
+                        }
+                    }
+                }
             }
-            document.getElementById('garage').onclick = () => {
-                click('/garage');
-            }
-            document.getElementById('gate').onclick = () => {
-                click('/gate');
-            }
+            [['garage', '/garage'], ['gate', '/gate']].forEach(([elementId, path]) => {
+                const clickTimeout = initClickTimeout();
+                const element = document.getElementById(elementId);
+                clickTimeout(element, {
+                    onClick() {
+                        element.style.backgroundColor = 'red';
+                        fetch(path);
+                    },
+                    onTimeout() {
+                        element.style.backgroundColor = '';
+                    }
+                });
+            });
         </script>
     </body>
 </html>
