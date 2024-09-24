@@ -1,0 +1,26 @@
+<html>
+    <head>
+        <style>
+            button {
+                width: 100%;
+                height: 50%;
+                font-size: 50px;
+            }
+        </style>
+    </head>
+    <body>
+        <button id="garage" />Garage</button>
+        <button id="gate" />Gate</button>
+        <script>
+            function click(path) {
+                fetch(path);
+            }
+            document.getElementById('garage').onclick = () => {
+                click('/garage');
+            }
+            document.getElementById('gate').onclick = () => {
+                click('/gate');
+            }
+        </script>
+    </body>
+</html>
