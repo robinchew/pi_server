@@ -14,29 +14,30 @@
         <script>
             function initClickTimeout() {
                 let timeout = null;
-                return (element, { onClick, onTimeout }) => {
+                return (element, { onClick, onTimeout, timeoutMs }) => {
                     element.onclick = () => {
                         if (timeout === null) {
                             onClick();
                             timeout = setTimeout(() => {
                                 onTimeout();
                                 timeout = null;
-                            }, 1000);
+                            }, timeoutMs);
                         }
                     }
                 }
             }
-            [['garage', '/garage'], ['gate', '/gate']].forEach(([elementId, path]) => {
+            [['garage', '/garage', 1500], ['gate', '/gate', 2000]].forEach(([elementId, path, timeoutMs]) => {
                 const clickTimeout = initClickTimeout();
                 const element = document.getElementById(elementId);
                 clickTimeout(element, {
                     onClick() {
                         element.style.backgroundColor = 'red';
-                        fetch(path);
+                        fetch('http://192.168.1.69:8000' + path);
                     },
                     onTimeout() {
                         element.style.backgroundColor = '';
-                    }
+                    },
+                    timeoutMs,
                 });
             });
         </script>
