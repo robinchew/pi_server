@@ -1,14 +1,27 @@
+from functools import partial
 import importlib.resources
 import os
 import sys
 from time import sleep
 
-from flask import Flask, Response
+from flask import Flask, Response as FlaskResponse
 from gpiozero import LED
 
-import static_files 
+import static_files
 
+try:
+    from startup_config import default_headers
+except ModuleNotFoundError:
+    default_headers = {}
 
+def Response(**kwargs):
+    new_headers = kwargs.pop('headers', {})
+    return FlaskResponse(
+        **kwargs,
+        headers={
+            **default_headers,
+            **new_headers,
+        })
 
 def DO_NOT_DEBUG_FOR_RASPBERRY_PI():
     '''
@@ -49,10 +62,8 @@ def gpio_toggle_response(name, pin_id, toggle_time):
     on_off(pin_id, toggle_time)
 
     return Response(
-        name + ' responded',
-        headers={
-            'Access-Control-Allow-Origin': '*'
-        })
+        response=name + ' responded',
+        headers=default_headers)
 
 @app.route('/<string:path_name>')
 def gpio_toggle_route(path_name):
