@@ -1,4 +1,3 @@
-from functools import partial
 import importlib.resources
 import os
 import sys
