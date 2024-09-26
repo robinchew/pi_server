@@ -1,11 +1,14 @@
 import importlib.resources
+import os
 import sys
 from time import sleep
 
-from flask import Flask
+from flask import Flask, Response
 from gpiozero import LED
 
 import static_files 
+
+
 
 def DO_NOT_DEBUG_FOR_RASPBERRY_PI():
     '''
@@ -44,7 +47,12 @@ def on_off(pin_id, toggle_time):
 
 def gpio_toggle_response(name, pin_id, toggle_time):
     on_off(pin_id, toggle_time)
-    return name + ' responded'
+
+    return Response(
+        name + ' responded',
+        headers={
+            'Access-Control-Allow-Origin': '*'
+        })
 
 @app.route('/<string:path_name>')
 def gpio_toggle_route(path_name):
@@ -56,7 +64,7 @@ def gpio_toggle_route(path_name):
 
 
 def main():
-    print(sys.argv)
+    print('Path of __file__', os.path.abspath(__file__))
     try:
         port = int(sys.argv[1])
     except IndexError:
