@@ -32,7 +32,7 @@
                 clickTimeout(element, {
                     onClick() {
                         element.style.backgroundColor = 'red';
-                        fetch('http://192.168.1.69:8000' + path);
+                        fetch(path);
                     },
                     onTimeout() {
                         element.style.backgroundColor = '';
