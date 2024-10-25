@@ -57,6 +57,8 @@ def on_off(pin_id, toggle_time):
     sleep(toggle_time)
     led.off()
 
+    led.close() # Hopefully this stops eventual gpiozero.exc.GPIOPinInUse error
+
 def gpio_toggle_response(name, pin_id, toggle_time):
     on_off(pin_id, toggle_time)
 
