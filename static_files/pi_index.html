@@ -12,6 +12,22 @@
         <button id="garage" />Garage</button>
         <button id="gate" />Gate</button>
         <script>
+            function loadScript(src, attrs = {}) {
+                const scriptAttrs = {
+                    type: 'text/javascript',
+                    async: true,
+                    ...attrs,
+                    src,
+                };
+                return new Promise((resolve) => {
+                    const script = document.createElement('script');
+                    script.src = src;
+                    Object.assign(script, scriptAttrs);
+                    script.addEventListener('load', () => resolve({ scriptAttrs, loadSuccess: true }));
+                    script.addEventListener('error', () => resolve({ scriptAttrs, loadSuccess: false }));
+                    document.head.appendChild(script);
+                });
+            }
             function initClickTimeout() {
                 let timeout = null;
                 return (element, { onClick, onTimeout, timeoutMs }) => {
@@ -26,20 +42,28 @@
                     }
                 }
             }
-            [['garage', '/garage', 1500], ['gate', '/gate', 2000]].forEach(([elementId, path, timeoutMs]) => {
-                const clickTimeout = initClickTimeout();
-                const element = document.getElementById(elementId);
-                clickTimeout(element, {
-                    onClick() {
-                        element.style.backgroundColor = 'red';
-                        fetch(path);
-                    },
-                    onTimeout() {
-                        element.style.backgroundColor = '';
-                    },
-                    timeoutMs,
+            function main({ fetch }) {
+                [['garage', '/garage', 1500], ['gate', '/gate', 2000]].forEach(([elementId, path, timeoutMs]) => {
+                    const clickTimeout = initClickTimeout();
+                    const element = document.getElementById(elementId);
+                    clickTimeout(element, {
+                        onClick() {
+                            element.style.backgroundColor = 'red';
+                            fetch(path);
+                        },
+                        onTimeout() {
+                            element.style.backgroundColor = '';
+                        },
+                        timeoutMs,
+                    });
                 });
-            });
+            }
+
+            loadScript('mainArgsInit.js').then(({ loadSuccess }) =>
+                main({
+                   fetch,
+                    ...(loadSuccess ? mainArgsInit() : {}),
+                }));
         </script>
     </body>
 </html>
