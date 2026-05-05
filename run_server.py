@@ -57,7 +57,7 @@ def on_off(pin_id, toggle_time):
     sleep(toggle_time)
     led.off()
 
-    led.close() # Hopefully this stops eventual gpiozero.exc.GPIOPinInUse error
+    led.close() # This does seem to stop eventual gpiozero.exc.GPIOPinInUse error
 
 def gpio_toggle_response(name, pin_id, toggle_time):
     on_off(pin_id, toggle_time)
@@ -69,7 +69,7 @@ def gpio_toggle_response(name, pin_id, toggle_time):
 @app.route('/<string:path_name>')
 def gpio_toggle_route(path_name):
     response_f, *args = {
-        'gate': (gpio_toggle_response, path_name, 'GPIO23', 0.4),
+        'gate': (gpio_toggle_response, path_name, 'GPIO23', 0.5),
         'garage': (gpio_toggle_response, path_name, 'GPIO18', 0.2),
     }.get(path_name, (page_404,))
     return response_f(*args)
