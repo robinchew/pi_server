@@ -2,8 +2,14 @@ import importlib.resources
 import os
 import sys
 from time import sleep
+import uuid
 
-from flask import Flask, Response as FlaskResponse
+from flask import (
+    Flask,
+    request,
+    make_response,
+    Response as FlaskResponse
+)
 from gpiozero import LED
 
 import static_files
@@ -42,10 +48,37 @@ Press CTRL+C to quit
 app = Flask(__name__)
 
 @app.route('/')
-def hello_world():
-    with (importlib.resources.files(static_files) / 'pi_index.html').open('rt') as f:
-        # https://stackoverflow.com/questions/70764499/can-i-read-non-code-files-in-a-python-zip-archive
-        return f.read()
+def index():
+    user_id = request.cookies.get('user_id')
+    is_new_user = user_id is None
+
+    if not user_id:
+        # If it doesn't exist, generate a unique ID
+        user_id = str(uuid.uuid4())
+    else:
+        print(f"Returning visitor with ID: {user_id}")
+
+    with open('/home/robin/gate_keepers.txt') as f:
+        keeper_list = f.read().splitlines()
+
+    if user_id in keeper_list:
+        with (importlib.resources.files(static_files) / 'pi_index.html').open('rt') as f:
+            # https://stackoverflow.com/questions/70764499/can-i-read-non-code-files-in-a-python-zip-archive
+            #
+            # TODO
+            # Investigate: from jinja2 import PackageLoader
+            resp = make_response(f.read())
+    else:
+        resp = make_response('<h1>' + user_id + '</h1>')
+
+    if is_new_user:
+        print(f"New visitor! Assigned ID: {user_id}")
+        resp.set_cookie('user_id', user_id)
+
+    return resp
+
+if __name__ == '__main__':
+    app.run(debug=True)
 
 def page_404():
     return '404', 404
