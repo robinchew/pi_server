@@ -1,5 +1,6 @@
 import importlib.resources
 import os
+import subprocess
 import sys
 from time import sleep
 import uuid
@@ -10,7 +11,6 @@ from flask import (
     make_response,
     Response as FlaskResponse
 )
-from gpiozero import LED
 
 import static_files
 
@@ -92,17 +92,12 @@ if __name__ == '__main__':
 def page_404():
     return '404', 404
 
-def on_off(pin_id, toggle_time):
-    led = LED(pin_id)
-
-    led.on()
-    sleep(toggle_time)
-    led.off()
-
-    led.close() # This does seem to stop eventual gpiozero.exc.GPIOPinInUse error
-
 def gpio_toggle_response(name, pin_id, toggle_time):
-    on_off(pin_id, toggle_time)
+    result = subprocess.run(['/home/robin/blugate_toggle'], capture_output=True, text=True)
+
+    print("Return Code:", result.returncode)
+    print("Output:", result.stdout)
+    print("Errors:", result.stderr)
 
     return Response(
         response=name + ' responded',
