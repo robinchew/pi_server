@@ -1,6 +1,6 @@
 import importlib.resources
 import os
-import subprocess
+import socket
 import sys
 from time import sleep
 import uuid
@@ -93,11 +93,16 @@ def page_404():
     return '404', 404
 
 def gpio_toggle_response(name, pin_id, toggle_time):
-    result = subprocess.run(['/home/robin/blugate_toggle'], capture_output=True, text=True)
-
-    print("Return Code:", result.returncode)
-    print("Output:", result.stdout)
-    print("Errors:", result.stderr)
+    with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as sock:
+        try:
+            # Connect to the server
+            sock.connect('/tmp/mydaemon.sock')
+            # Send the message
+            message = b'trg\n'
+            sock.sendall(message)
+            print(f"Message sent: {message}")
+        except socket.error as e:
+            print(f"Connection failed: {e}")
 
     return Response(
         response=name + ' responded',
