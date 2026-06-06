@@ -77,6 +77,15 @@ def index():
 
     return resp
 
+@app.route('/zahin')
+def password_index():
+    with (importlib.resources.files(static_files) / 'pi_index.html').open('rt') as f:
+        # https://stackoverflow.com/questions/70764499/can-i-read-non-code-files-in-a-python-zip-archive
+        #
+        # TODO
+        # Investigate: from jinja2 import PackageLoader
+        return f.read()
+
 if __name__ == '__main__':
     app.run(debug=True)
 
